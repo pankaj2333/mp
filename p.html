@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Abstractive Text Summarizer</title>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0/dist/tf.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder@4.0.0/dist/universal-sentence-encoder.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/tfjs-node@1.4.0/dist/tfjs-node.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@huggingface/sentence-transformers@2.0.0-beta.3/dist/browser/sentence-transformers.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu@3.9.0/dist/tf-backend-cpu.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@3.9.0/dist/tf-backend-webgl.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@3.9.0/dist/tfjs-converter.min.js"></script>
+</head>
+<body>
+	<h1>Abstractive Text Summarizer</h1>
+	<label for="text-input">Enter text to summarize:</label><br>
+	<textarea id="text-input" rows="10" cols="50"></textarea><br>
+	<button onclick="summarizeText()">Summarize</button><br>
+	<label for="url-input">Enter URL to summarize:</label><br>
+	<input type="text" id="url-input" size="50"><br>
+	<button onclick="summarizeURL()">Summarize</button><br>
+	<label for="summary-output">Summary:</label><br>
+	<textarea id="summary-output" rows="10" cols="50" readonly></textarea><br>
+	<button onclick="translate('hi')">Translate to Hindi</button>
+	<button onclick="translate('te')">Translate to Telugu</button>
+</body>
+<script>
+	async function summarizeText() {
+		// Load the model
+		const model = await transformers.SentenceTransformer.fromPretrained('bert-base-nli-mean-tokens');
+
+		// Get the input text
+		const inputText = document.getElementById('text-input').value;
+
+		// Generate the summary
+		const summary = await generateSummary(inputText, model);
+
+		// Output the summary
+		document.getElementById('summary-output').value = summary;
+	}
+
+	async function summarizeURL() {
+		// Load the model
+		const model = await transformers.SentenceTransformer.fromPretrained('bert-base-nli-mean-tokens');
+
+		// Get the URL input
+		const url = document.getElementById('url-input').value;
+
+		// Fetch the webpage text
+		const webpageText = await fetchWebpageText(url);
+
+		// Generate the summary
+		const summary = await generateSummary(webpageText, model);
+
+		// Output the summary
+		document.getElementById('summary-output').value = summary;
+	}
+
+	async function fetchWebpageText(url) {
+		// Fetch the webpage content
+		const response = await fetch(url);
+
+		// Extract the text from the HTML
+		const html = await response.text();
+		const parser = new DOMParser();
+		const doc = parser.parseFromString
